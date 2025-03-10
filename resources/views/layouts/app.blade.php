@@ -22,14 +22,24 @@
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
+        <!-- filepath: g:\projects\restaurant-system\resources\views\layouts\app.blade.php -->
         <style>
             :root {
-                --bs-primary: #D94E4E;
-                --bs-secondary: #2C3E50;
-                --bs-success: #27AE60;
-                --bs-warning: #F39C12;
-                --bs-light: #F5F5F5;
-                --bs-dark: #333333;
+                /* Sandy/Earthy Color Palette */
+                --bs-primary: #C8A27D;
+                /* Warm sand/caramel */
+                --bs-secondary: #5D4B35;
+                /* Dark cedar brown */
+                --bs-success: #7FA053;
+                /* Olive green */
+                --bs-warning: #E6B35A;
+                /* Golden sand */
+                --bs-light: #F7F3EB;
+                /* Off-white/cream */
+                --bs-dark: #3D3325;
+                /* Deep brown */
+                --bs-accent: #D99559;
+                /* Terracotta/clay */
             }
 
             html,
@@ -41,7 +51,6 @@
                 font-family: 'Poppins', sans-serif;
                 background-color: var(--bs-light);
                 padding-left: 250px;
-                /* Make space for the sidebar */
                 transition: padding-left 0.3s ease;
                 display: flex;
                 flex-direction: column;
@@ -54,6 +63,7 @@
             h5,
             h6 {
                 font-family: 'Playfair Display', serif;
+                color: black;
             }
 
             /* Main content wrapper */
@@ -73,11 +83,12 @@
                 overflow-y: auto;
                 transition: all 0.3s ease;
                 box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+                background-image: linear-gradient(to bottom, var(--bs-secondary), #4A3C2A);
             }
 
             .sidebar-logo {
                 padding: 1.5rem;
-                background-color: rgba(0, 0, 0, 0.1);
+                background-color: rgba(0, 0, 0, 0.15);
                 display: flex;
                 align-items: center;
             }
@@ -86,7 +97,7 @@
                 font-family: 'Playfair Display', serif;
                 font-weight: 700;
                 font-size: 1.5rem;
-                color: white;
+                color: var(--bs-warning);
             }
 
             .sidebar .nav-link {
@@ -121,7 +132,7 @@
                 position: absolute;
                 bottom: 0;
                 width: 100%;
-                background-color: rgba(0, 0, 0, 0.1);
+                background-color: rgba(0, 0, 0, 0.15);
             }
 
             /* Toggle button for mobile */
@@ -131,17 +142,31 @@
                 left: 10px;
                 z-index: 1001;
                 display: none;
+                background-color: var(--bs-primary);
+                border-color: var(--bs-primary);
+            }
+
+            .sidebar-toggle:hover {
+                background-color: var(--bs-accent);
+                border-color: var(--bs-accent);
             }
 
             /* Custom card styling with Bootstrap base */
             .card {
                 border-radius: 0.75rem;
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
+                border-color: rgba(93, 75, 53, 0.1);
+                /* Light version of secondary */
             }
 
             .card:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 10px 20px rgba(93, 75, 53, 0.15);
+            }
+
+            .card .card-header {
+                background-color: var(--bs-light);
+                border-bottom: 1px solid rgba(93, 75, 53, 0.1);
             }
 
             /* Food menu styling */
@@ -152,7 +177,7 @@
             }
 
             .menu-item-price {
-                color: var(--bs-primary);
+                color: var(--bs-accent);
                 font-weight: bold;
                 font-size: 1.2rem;
             }
@@ -170,10 +195,11 @@
             .footer {
                 flex-shrink: 0;
                 background-color: var(--bs-secondary);
-                color: white;
+                color: var(--bs-light);
                 padding: 2rem 0;
-                width: calc(100% - 250px);
+                width: 100%;
                 margin-left: 0;
+                background-image: linear-gradient(to bottom, #4A3C2A, var(--bs-secondary));
             }
 
             /* Add this style to fix the container inside the footer */
@@ -184,14 +210,49 @@
             }
 
             .footer a.text-white:hover {
-                color: var(--bs-primary) !important;
+                color: var(--bs-warning) !important;
                 text-decoration: none;
                 transition: color 0.3s ease;
             }
 
+            /* Button styling */
+            .btn-primary {
+                background-color: var(--bs-primary);
+                border-color: var(--bs-primary);
+            }
+
+            .btn-primary:hover {
+                background-color: var(--bs-accent);
+                border-color: var(--bs-accent);
+            }
+
+            .btn-outline-primary {
+                border-color: var(--bs-primary);
+                color: var(--bs-primary);
+            }
+
+            .btn-outline-primary:hover {
+                background-color: var(--bs-primary);
+                color: white;
+            }
+
             /* Responsive styles */
             @media (max-width: 991.98px) {
-                /* Your other responsive styles... */
+                body {
+                    padding-left: 0;
+                }
+
+                .sidebar {
+                    left: -250px;
+                }
+
+                .sidebar.show {
+                    left: 0;
+                }
+
+                .sidebar-toggle {
+                    display: block;
+                }
 
                 .footer {
                     width: 100%;
@@ -216,11 +277,6 @@
 
             .overlay.show {
                 display: block;
-            }
-
-            .footer {
-                width: 100%;
-            }
             }
         </style>
 
@@ -337,46 +393,17 @@
         <footer class="footer">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-4 mb-4 mb-md-0">
-                        <h4 class="text-warning mb-4">{{ config('app.name', 'Restaurant System') }}</h4>
-                        <p>Experience the finest dining with our carefully crafted dishes prepared by expert chefs using
-                            only the freshest ingredients.</p>
-                    </div>
-                    <div class="col-md-4 mb-4 mb-md-0">
-                        <h5 class="mb-3">Hours</h5>
-                        <ul class="list-unstyled">
-                            <li><i class="far fa-clock me-2"></i> Monday - Friday: 11:00 AM - 10:00 PM</li>
-                            <li><i class="far fa-clock me-2"></i> Saturday - Sunday: 10:00 AM - 11:00 PM</li>
-                        </ul>
-                        <h5 class="mb-3 mt-4">Contact</h5>
-                        <ul class="list-unstyled">
-                            <li><i class="fas fa-map-marker-alt me-2"></i> 123 Restaurant Street, City</li>
-                            <li><i class="fas fa-phone me-2"></i> (123) 456-7890</li>
-                            <li><i class="fas fa-envelope me-2"></i> info@restaurant.com</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-4">
-                        <h5 class="mb-3">Quick Links</h5>
-                        <ul class="list-unstyled">
-                            <li><a href="{{ url('/privacy-policy') }}"
-                                    class="text-white text-decoration-none mb-2 d-block"><i
-                                        class="fas fa-chevron-right me-2"></i>Privacy Policy</a></li>
-                            <li><a href="{{ url('/terms') }}" class="text-white text-decoration-none mb-2 d-block"><i
-                                        class="fas fa-chevron-right me-2"></i>Terms & Conditions</a></li>
-                        </ul>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-0">&copy; {{ date('Y') }}
+                                {{ config('app.name', 'Restaurant System') }}.
+                                All rights reserved.</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p class="mb-0">Designed with <i class="fas fa-heart text-danger"></i></p>
+                        </div>
                     </div>
                 </div>
-                <hr class="mt-4 mb-4" style="border-color: rgba(255,255,255,0.1);">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p class="mb-0">&copy; {{ date('Y') }} {{ config('app.name', 'Restaurant System') }}.
-                            All rights reserved.</p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <p class="mb-0">Designed with <i class="fas fa-heart text-danger"></i></p>
-                    </div>
-                </div>
-            </div>
         </footer>
 
         <!-- Bootstrap JS Bundle with Popper -->
