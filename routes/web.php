@@ -17,3 +17,4 @@ Route::get('/', function () {
 Route::resource('items', ItemController::class);
 Route::resource('orders', OrderController::class);  
 Route::resource('categories', CategoryController::class);
+Route::get('/menu', [ItemController::class, 'menu'])->name('menu');

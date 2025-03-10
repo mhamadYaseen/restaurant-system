@@ -100,4 +100,16 @@ class ItemController extends Controller {
 
         return redirect()->route('items.index')->with('success', 'Item deleted successfully!');
     }
+
+
+    // Display menu
+    public function menu() {
+        $categories = Category::with('items')->get();
+        return view('items.menu', compact('categories'));
+    }
+
+    public function createOrder() {
+        $items = Item::all();
+        return view('orders.create', compact('items'));
+    }
 }

@@ -7,30 +7,40 @@ use App\Models\OrderItem;
 use App\Models\Item;
 use Illuminate\Http\Request;
 
-class OrderController extends Controller {
-    
+class OrderController extends Controller
+{
+
     // Display all orders
-    public function index() {
-        $orders = Order::with('orderItems.item')->get();
+    public function index()
+    {
+        $orders = Order::with(['orderItems.item'])->latest()->get();
         return view('orders.index', compact('orders'));
     }
 
     // Show form to create a new order
-    public function create() {
+    public function create()
+    {
         $items = Item::all();
         return view('orders.create', compact('items'));
     }
 
     // Store new order
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
             'items' => 'required|array',
-            'items.*.id' => 'exists:items,id',
+            'items.*.id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
+        $validItems = collect($request->items);
+
+        if ($validItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Please select at least one item for the order.');
+        }
+
         $total_price = 0;
-        foreach ($request->items as $item) {
+        foreach ($validItems as $item) {
             $product = Item::findOrFail($item['id']);
             $total_price += $product->price * $item['quantity'];
         }
@@ -40,13 +50,15 @@ class OrderController extends Controller {
             'status' => 'pending',
         ]);
 
-        foreach ($request->items as $item) {
+        foreach ($validItems as $item) {
+            $product = Item::findOrFail($item['id']);
+
             OrderItem::create([
                 'order_id' => $order->id,
                 'item_id' => $item['id'],
                 'quantity' => $item['quantity'],
-                'price' => Item::findOrFail($item['id'])->price,
-                'image' => Item::findOrFail($item['id'])->image, // Same image as item
+                'price' => $product->price,
+                'image' => $product->image,
             ]);
         }
 
@@ -54,18 +66,21 @@ class OrderController extends Controller {
     }
 
     // Display a single order
-    public function show(Order $order) {
+    public function show(Order $order)
+    {
         return view('orders.show', compact('order'));
     }
 
     // Show edit form
-    public function edit(Order $order) {
+    public function edit(Order $order)
+    {
         $items = Item::all();
         return view('orders.edit', compact('order', 'items'));
     }
 
     // Update order
-    public function update(Request $request, Order $order) {
+    public function update(Request $request, Order $order)
+    {
         $request->validate([
             'items' => 'required|array',
             'items.*.id' => 'exists:items,id',
@@ -73,10 +88,20 @@ class OrderController extends Controller {
             'status' => 'required|in:pending,completed,cancelled',
         ]);
 
+        // Filter out any items that don't have an ID
+        $validItems = collect($request->items)
+            ->filter(function ($item) {
+                return isset($item['id']);
+            });
+
+        if ($validItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Please select at least one item for the order.');
+        }
+
         $total_price = 0;
         $order->orderItems()->delete(); // Remove old order items
 
-        foreach ($request->items as $item) {
+        foreach ($validItems as $item) {
             $product = Item::findOrFail($item['id']);
             $total_price += $product->price * $item['quantity'];
 
@@ -98,7 +123,8 @@ class OrderController extends Controller {
     }
 
     // Delete order
-    public function destroy(Order $order) {
+    public function destroy(Order $order)
+    {
         $order->orderItems()->delete();
         $order->delete();
 

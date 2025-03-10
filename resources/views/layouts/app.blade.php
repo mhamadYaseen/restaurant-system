@@ -288,10 +288,10 @@
         <button class="btn btn-primary rounded-circle sidebar-toggle" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
-
+        
         <!-- Overlay for mobile -->
         <div class="overlay" id="overlay"></div>
-
+        
         <!-- Sidebar Navigation -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-logo">
@@ -299,7 +299,13 @@
                     <i class="fas fa-utensils me-2"></i>{{ config('app.name', 'Restaurant') }}
                 </a>
             </div>
-
+            
+            <!-- Management Section -->
+            <li class="nav-item">
+                <div class="px-3 py-2">
+                    <small class="text-uppercase text-light opacity-50">Management</small>
+                </div>
+            </li>
             <div class="mt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
@@ -312,21 +318,25 @@
                             <i class="fas fa-book-open"></i> Menu
                         </a>
                     </li>
+
+                    {{-- <hr class="my-3 bg-light opacity-25"> --}}
+
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('reservations') ? 'active' : '' }}"
-                            href="{{ url('/reservations') }}">
-                            <i class="fas fa-calendar-alt"></i> Reservations
+                        <a class="nav-link {{ request()->is('categories*') ? 'active' : '' }}"
+                            href="{{ route('categories.index') }}">
+                            <i class="fas fa-tags"></i> Categories
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('about') ? 'active' : '' }}" href="{{ url('/about') }}">
-                            <i class="fas fa-info-circle"></i> About
+                        <a class="nav-link {{ request()->is('items*') ? 'active' : '' }}"
+                            href="{{ route('items.index') }}">
+                            <i class="fas fa-utensils"></i> Items
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('contact') ? 'active' : '' }}"
-                            href="{{ url('/contact') }}">
-                            <i class="fas fa-envelope"></i> Contact
+                        <a class="nav-link {{ request()->is('orders*') ? 'active' : '' }}"
+                            href="{{ route('orders.index') }}">
+                            <i class="fas fa-clipboard-list"></i> Orders
                         </a>
                     </li>
 
@@ -340,28 +350,9 @@
                         </li>
                     @else
                         <li class="nav-item">
-                            @if (Auth::user()->isAdmin())
-                                <a class="nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}"
-                                    href="{{ url('/admin/dashboard') }}">
-                                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                                </a>
-                            @endif
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('profile') ? 'active' : '' }}"
-                                href="{{ url('/profile') }}">
-                                <i class="fas fa-user"></i> Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('orders') ? 'active' : '' }}" href="{{ url('/orders') }}">
-                                <i class="fas fa-receipt"></i> Orders
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-danger" href="{{ route('logout') }}"
+                            <a class="nav-link" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="fas fa-sign-out-alt"></i> {{ __('Logout') }}
+                                <i class="fas fa-sign-out-alt"></i> Logout
                             </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                 @csrf
@@ -371,13 +362,13 @@
                 </ul>
             </div>
 
+
             <!-- Social media icons in sidebar footer -->
             <div class="sidebar-footer text-center">
                 <div>
                     <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
                     <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
                     <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-white mx-2"><i class="fab fa-tripadvisor"></i></a>
                 </div>
             </div>
         </div>
