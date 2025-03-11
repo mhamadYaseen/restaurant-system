@@ -29,28 +29,51 @@ class OrderController extends Controller
     {
         $request->validate([
             'items' => 'required|array',
-            'items.*.id' => 'required|exists:items,id',
-            'items.*.quantity' => 'required|integer|min:1',
         ]);
 
-        $validItems = collect($request->items);
+        // Normalize the items array based on its format
+        // Format from menu: items[0][id], items[0][quantity]
+        // Format from create: items[item_id][id], items[item_id][quantity]
+        $normalizedItems = [];
 
-        if ($validItems->isEmpty()) {
-            return redirect()->back()->with('error', 'Please select at least one item for the order.');
+        foreach ($request->items as $key => $item) {
+            // Skip items without an ID (unchecked checkboxes in create form)
+            if (!isset($item['id']) || empty($item['id'])) {
+                continue;
+            }
+
+            // Only include items with quantity
+            if (isset($item['quantity']) && $item['quantity'] > 0) {
+                $normalizedItems[] = [
+                    'id' => $item['id'],
+                    'quantity' => $item['quantity']
+                ];
+            }
+        }
+
+        // Check if any items remain after filtering
+        if (empty($normalizedItems)) {
+            return redirect()->back()
+                ->with('error', 'Please select at least one item for the order.')
+                ->withInput();
         }
 
         $total_price = 0;
-        foreach ($validItems as $item) {
+
+        // Calculate total price
+        foreach ($normalizedItems as $item) {
             $product = Item::findOrFail($item['id']);
             $total_price += $product->price * $item['quantity'];
         }
 
+        // Create order
         $order = Order::create([
             'total_price' => $total_price,
             'status' => 'pending',
         ]);
 
-        foreach ($validItems as $item) {
+        // Create order items
+        foreach ($normalizedItems as $item) {
             $product = Item::findOrFail($item['id']);
 
             OrderItem::create([
@@ -62,7 +85,14 @@ class OrderController extends Controller
             ]);
         }
 
-        return redirect()->route('orders.index')->with('success', 'Order created successfully!');
+        // Determine where to redirect based on referer
+        if (str_contains(url()->previous(), 'menu')) {
+            return redirect()->route('orders.index')
+                ->with('success', 'Your order has been placed successfully!');
+        } else {
+            return redirect()->route('orders.index')
+                ->with('success', 'Order created successfully!');
+        }
     }
 
     // Display a single order
