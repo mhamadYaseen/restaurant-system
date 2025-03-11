@@ -27,7 +27,7 @@
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <link rel="stylesheet" href="{{ asset('css/menu.css') }}">
         <!-- filepath: g:\projects\restaurant-system\resources\views\layouts\app.blade.php -->
-       
+
 
         @stack('styles')
     </head>
@@ -37,10 +37,10 @@
         <button class="btn btn-primary rounded-circle sidebar-toggle" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
-        
+
         <!-- Overlay for mobile -->
         <div class="overlay" id="overlay"></div>
-        
+
         <!-- Sidebar Navigation -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-logo">
@@ -48,7 +48,7 @@
                     <i class="fas fa-utensils me-2"></i>{{ config('app.name', 'Restaurant') }}
                 </a>
             </div>
-            
+
             <!-- Management Section -->
             <li class="nav-item">
                 <div class="px-3 py-2">
@@ -166,11 +166,36 @@
                     overlay.classList.remove('show');
                 });
             });
+
+
+            // Set up CSRF token for all AJAX requests
+            document.addEventListener('DOMContentLoaded', function() {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                // Add CSRF token to all AJAX requests
+                window.addEventListener('fetch', function(event) {
+                    if (event.request.method !== 'GET') {
+                        const headers = new Headers(event.request.headers);
+                        headers.append('X-CSRF-TOKEN', token);
+                        event.request = new Request(
+                            event.request.url, {
+                                method: event.request.method,
+                                body: event.request.body,
+                                headers: headers,
+                                credentials: 'same-origin',
+                                mode: event.request.mode,
+                                cache: event.request.cache,
+                                redirect: event.request.redirect,
+                                referrer: event.request.referrer
+                            }
+                        );
+                    }
+                }, true);
+            });
         </script>
         <!-- Include menu.js script -->
         <script src="{{ asset('js/menu.js') }}"></script>
         @stack('scripts')
 
     </body>
-
 </html>

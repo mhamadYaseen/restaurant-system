@@ -129,4 +129,5 @@
                     </form>
                 </div>
             </div>
+            @include('orders.receipt')
         @endsection

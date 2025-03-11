@@ -113,3 +113,25 @@
 .order-item:last-child {
    border-bottom: none;
 }
+
+@media print {
+   body * {
+       visibility: hidden;
+   }
+   
+   #orderReceiptModal .modal-content,
+   #orderReceiptModal .modal-content * {
+       visibility: visible;
+   }
+   
+   #orderReceiptModal .modal-content {
+       position: absolute;
+       left: 0;
+       top: 0;
+       width: 100%;
+   }
+   
+   #orderReceiptModal .modal-footer {
+       display: none;
+   }
+}

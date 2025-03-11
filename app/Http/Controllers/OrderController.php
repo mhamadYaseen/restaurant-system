@@ -59,11 +59,21 @@ class OrderController extends Controller
         }
 
         $total_price = 0;
+        $itemsWithDetails = [];
 
-        // Calculate total price
+        // Calculate total price and gather item details
         foreach ($normalizedItems as $item) {
             $product = Item::findOrFail($item['id']);
-            $total_price += $product->price * $item['quantity'];
+            $itemTotal = $product->price * $item['quantity'];
+            $total_price += $itemTotal;
+
+            $itemsWithDetails[] = [
+                'id' => $item['id'],
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => $item['quantity'],
+                'total' => $itemTotal
+            ];
         }
 
         // Create order
@@ -85,13 +95,33 @@ class OrderController extends Controller
             ]);
         }
 
+        // For AJAX requests (from the menu page)
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your order has been placed successfully!',
+                'receipt' => [
+                    'order_id' => $order->id,
+                    'date' => $order->created_at->format('M d, Y'),
+                    'time' => $order->created_at->format('g:i A'),
+                    'items' => $itemsWithDetails,
+                    'subtotal' => $total_price,
+                    'tax' => $total_price * 0.1,
+                    'total' => $total_price + ($total_price * 0.1)
+                ]
+            ]);
+        }
+
+        // For regular requests
         // Determine where to redirect based on referer
         if (str_contains(url()->previous(), 'menu')) {
             return redirect()->route('orders.index')
-                ->with('success', 'Your order has been placed successfully!');
+                ->with('success', 'Your order has been placed successfully!')
+                ->with('order_id', $order->id);
         } else {
             return redirect()->route('orders.index')
-                ->with('success', 'Order created successfully!');
+                ->with('success', 'Order created successfully!')
+                ->with('order_id', $order->id);
         }
     }
 
