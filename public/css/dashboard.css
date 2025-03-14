@@ -1,0 +1,92 @@
+.card {
+   transition: transform 0.2s ease, box-shadow 0.2s ease;
+   border-radius: 0.75rem;
+}
+
+.card:hover {
+   transform: translateY(-5px);
+   box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+}
+
+.rounded-circle {
+   width: 48px;
+   height: 48px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.list-group-item {
+   border-left: none;
+   border-right: none;
+   padding: 1rem;
+}
+
+.list-group-item:first-child {
+   border-top: none;
+}
+
+.card-header {
+   padding: 1rem;
+   background-color: transparent;
+   border-bottom: 1px solid rgba(0, 0, 0, .05);
+}
+
+.card-footer {
+   padding: 0.75rem 1rem;
+   background-color: transparent;
+}
+
+/* Animation for cards */
+@keyframes fadeIn {
+   0% {
+       opacity: 0;
+       transform: translateY(20px);
+   }
+
+   100% {
+       opacity: 1;
+       transform: translateY(0);
+   }
+}
+
+.col-xl-3,
+.col-lg-8,
+.col-lg-4 {
+   animation: fadeIn 0.5s ease-out forwards;
+}
+
+.col-xl-3:nth-child(1) {
+   animation-delay: 0.1s;
+}
+
+.col-xl-3:nth-child(2) {
+   animation-delay: 0.2s;
+}
+
+.col-xl-3:nth-child(3) {
+   animation-delay: 0.3s;
+}
+
+.col-xl-3:nth-child(4) {
+   animation-delay: 0.4s;
+}
+
+/* Custom scroll styling for tables */
+.table-responsive::-webkit-scrollbar {
+   height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+   background: #f1f1f1;
+   border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+   background: #888;
+   border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+   background: #555;
+}

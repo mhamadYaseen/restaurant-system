@@ -26,6 +26,7 @@
         {{-- css Links --}}
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <link rel="stylesheet" href="{{ asset('css/menu.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
         <!-- filepath: g:\projects\restaurant-system\resources\views\layouts\app.blade.php -->
 
 
@@ -99,13 +100,13 @@
                         </li>
                     @else
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('logout') }}"
-                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                 @csrf
                             </form>
+                            <a class="nav-link" href="#"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
                         </li>
                     @endguest
                 </ul>
@@ -156,41 +157,48 @@
                 const sidebar = document.getElementById('sidebar');
                 const overlay = document.getElementById('overlay');
 
+                // Function to check viewport width
+                function isMobile() {
+                    return window.innerWidth < 992;
+                }
+
+                // Initialize sidebar state based on screen size
+                function initSidebarState() {
+                    if (isMobile()) {
+                        sidebar.classList.remove('show');
+                        console.log('Mobile detected - sidebar hidden');
+                    } else {
+                        sidebar.classList.add('show');
+                        console.log('Desktop detected - sidebar visible');
+                    }
+                }
+
+                // Call once when page loads
+                initSidebarState();
+
+                // Toggle sidebar on button click
                 sidebarToggle.addEventListener('click', function() {
+                    console.log('Toggle clicked');
                     sidebar.classList.toggle('show');
                     overlay.classList.toggle('show');
                 });
 
+                // Hide sidebar when clicking overlay
                 overlay.addEventListener('click', function() {
+                    console.log('Overlay clicked');
                     sidebar.classList.remove('show');
                     overlay.classList.remove('show');
                 });
-            });
 
-
-            // Set up CSRF token for all AJAX requests
-            document.addEventListener('DOMContentLoaded', function() {
-                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                // Add CSRF token to all AJAX requests
-                window.addEventListener('fetch', function(event) {
-                    if (event.request.method !== 'GET') {
-                        const headers = new Headers(event.request.headers);
-                        headers.append('X-CSRF-TOKEN', token);
-                        event.request = new Request(
-                            event.request.url, {
-                                method: event.request.method,
-                                body: event.request.body,
-                                headers: headers,
-                                credentials: 'same-origin',
-                                mode: event.request.mode,
-                                cache: event.request.cache,
-                                redirect: event.request.redirect,
-                                referrer: event.request.referrer
-                            }
-                        );
+                // Update sidebar state when window is resized
+                window.addEventListener('resize', function() {
+                    console.log('Window resized');
+                    initSidebarState();
+                    if (!isMobile()) {
+                        // When switching to desktop view, hide overlay
+                        overlay.classList.remove('show');
                     }
-                }, true);
+                });
             });
         </script>
         <!-- Include menu.js script -->
@@ -198,4 +206,5 @@
         @stack('scripts')
 
     </body>
+
 </html>

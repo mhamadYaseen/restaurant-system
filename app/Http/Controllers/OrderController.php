@@ -79,7 +79,7 @@ class OrderController extends Controller
         // Create order
         $order = Order::create([
             'total_price' => $total_price,
-            'status' => 'pending',
+            'status' => 'completed',
         ]);
 
         // Create order items

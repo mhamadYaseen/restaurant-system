@@ -92,41 +92,53 @@
                             <i class="fas fa-shopping-cart me-2"></i> Your Order
                         </h5>
                     </div>
-                    <form id="orderForm" action="{{ route('orders.store') }}" method="POST">
-                        @csrf
-                        <div class="card-body">
-                            <div id="order-items">
-                                <div class="text-center py-4 empty-cart-message">
-                                    <i class="fas fa-shopping-basket fa-3x text-muted mb-3"></i>
-                                    <p>Your order is empty</p>
-                                    <p class="text-muted small">Select items from the menu to add them to your order</p>
+                    @auth
+                        <form id="orderForm" action="{{ route('orders.store') }}" method="POST">
+                            @csrf
+                            <div class="card-body">
+                                <div id="order-items">
+                                    <div class="text-center py-4 empty-cart-message">
+                                        <i class="fas fa-shopping-basket fa-3x text-muted mb-3"></i>
+                                        <p>Your order is empty</p>
+                                        <p class="text-muted small">Select items from the menu to add them to your order</p>
+                                    </div>
+                                    <!-- Order items will be dynamically added here -->
+                                    <!-- Hidden inputs for the order data will be inserted here -->
+                                    <div id="order-inputs"></div>
                                 </div>
-                                <!-- Order items will be dynamically added here -->
-                                <!-- Hidden inputs for the order data will be inserted here -->
-                                <div id="order-inputs"></div>
-                            </div>
 
-                            <div class="order-summary mt-3 pt-3 border-top d-none">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Subtotal:</span>
-                                    <span id="subtotal-amount">$0.00</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2 text-muted small">
-                                    <span>Tax (10%):</span>
-                                    <span id="tax-amount">$0.00</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-0 fw-bold">
-                                    <span>Total:</span>
-                                    <span id="total-amount">$0.00</span>
+                                <div class="order-summary mt-3 pt-3 border-top d-none">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Subtotal:</span>
+                                        <span id="subtotal-amount">$0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 text-muted small">
+                                        <span>Tax (10%):</span>
+                                        <span id="tax-amount">$0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-0 fw-bold">
+                                        <span>Total:</span>
+                                        <span id="total-amount">$0.00</span>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="card-footer">
+                                <button type="submit" id="place-order-btn" class="btn btn-primary w-100" disabled>
+                                    Place Order
+                                </button>
+                            </div>
+                        </form>
+                    @endauth
+
+                    @guest
+                        <div class="card-body">
+                            <div class="text-center py-4">
+                                <i class="fas fa-user fa-3x text-muted mb-3"></i>
+                                <p>You must be logged in to place an order</p>
+                                <a href="{{ route('login') }}" class="btn btn-primary">Login</a>
+                            </div>
                         </div>
-                        <div class="card-footer">
-                            <button type="submit" id="place-order-btn" class="btn btn-primary w-100" disabled>
-                                Place Order
-                            </button>
-                        </div>
-                    </form>
+                    @endguest
                 </div>
             </div>
             @include('orders.receipt')
