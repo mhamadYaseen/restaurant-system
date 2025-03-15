@@ -278,9 +278,13 @@
             display: flex;
             align-items: center;
             text-align: center;
-            margin-top: -70px;
+            /* REMOVE THIS LINE that's causing the problem */
+            margin-top: -70px; 
+            padding-top: 60px;
+            /* Add some padding instead */
         }
 
+        /* Make sure the z-index doesn't interfere with navigation */
         .hero::before {
             content: '';
             position: absolute;
@@ -289,14 +293,24 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            /* Lower z-index */
         }
 
         .hero-content {
             position: relative;
-            z-index: 10;
+            z-index: 2;
+            /* Higher than the overlay but lower than navbar */
             max-width: 800px;
             margin: 0 auto;
             padding: 0 20px;
+        }
+
+        /* Add these to ensure navbar visibility */
+        .navbar {
+            position: relative;
+            z-index: 10;
+            /* Higher z-index to ensure it's above hero */
         }
 
         .hero h1 {

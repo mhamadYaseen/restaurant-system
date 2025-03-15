@@ -92,7 +92,7 @@
                             <i class="fas fa-shopping-cart me-2"></i> Your Order
                         </h5>
                     </div>
-                    @auth
+                    @if(Auth::check() && Auth::user()->role != 'pending')
                         <form id="orderForm" action="{{ route('orders.store') }}" method="POST">
                             @csrf
                             <div class="card-body">
@@ -128,7 +128,7 @@
                                 </button>
                             </div>
                         </form>
-                    @endauth
+                    @endif
 
                     @guest
                         <div class="card-body">
@@ -139,6 +139,22 @@
                             </div>
                         </div>
                     @endguest
+
+                    @if(Auth::check() && Auth::user()->role == 'pending')
+                        <div class="card-body">
+                            <div class="text-center py-4">
+                                <i class="fas fa-user-clock fa-3x text-warning mb-3"></i>
+                                <p>Your account is pending approval</p>
+                                <p class="text-muted small">You'll be able to place orders once your account is approved</p>
+                                
+                                <a href="{{ route('menu') }}" class="btn btn-outline-primary mt-3">
+                                    <i class="fas fa-utensils me-2"></i> Browse Menu
+                                </a>
+                                
+                            </div>
+
+                        </div>
+                    @endif
                 </div>
             </div>
             @include('orders.receipt')

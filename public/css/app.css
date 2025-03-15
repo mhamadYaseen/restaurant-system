@@ -24,10 +24,42 @@ body {
 body {
    font-family: 'Poppins', sans-serif;
    background-color: var(--bs-light);
-   padding-left: 250px;
    transition: padding-left 0.3s ease;
    display: flex;
    flex-direction: column;
+}
+
+/* Different body padding based on sidebar presence */
+body.with-sidebar {
+   padding-left: 250px;
+}
+
+body.no-sidebar {
+   /* Update this rule to add padding-top for fixed navbar */
+   padding-top: 76px; /* Adjust this value based on your navbar height */
+   padding-left: 0;
+}
+
+@media (max-width: 991.98px) {
+   body.no-sidebar {
+      padding-top: 60px; /* Slightly smaller padding for mobile */
+   }
+}
+
+/* Update the navbar rules */
+.navbar.fixed-top {
+   position: fixed;
+   top: 0;
+   right: 0;
+   left: 0;
+   z-index: 1030;
+   transition: all 0.3s ease;
+}
+
+/* Optional: Add a scrolled style for visual flair */
+.navbar.fixed-top.scrolled {
+   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+   background-color: rgba(255, 255, 255, 0.98) !important;
 }
 
 h1,
@@ -107,6 +139,37 @@ h6 {
    bottom: 0;
    width: 100%;
    background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Top Navbar Styling for Guest/Non-Admin Users */
+.navbar {
+   background-color: white;
+}
+
+.navbar .navbar-brand {
+   font-family: 'Playfair Display', serif;
+   font-weight: 700;
+   color: var(--bs-secondary);
+}
+
+.navbar .nav-link {
+   color: var(--bs-secondary);
+   font-weight: 500;
+   padding: 0.75rem 1rem;
+   transition: color 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+   color: var(--bs-primary);
+}
+
+.navbar .nav-link.active {
+   color: var(--bs-primary);
+   font-weight: 600;
+}
+
+.navbar .nav-link i {
+   margin-right: 5px;
 }
 
 /* Toggle button for mobile */
@@ -217,7 +280,7 @@ h6 {
 
 /* Responsive styles */
 @media (max-width: 991.98px) {
-   body {
+   body.with-sidebar {
        padding-left: 0;
    }
 
@@ -241,8 +304,12 @@ h6 {
 }
 
 @media (min-width: 992px) {
-   body {
+   body.with-sidebar {
        padding-left: 250px;
+   }
+
+   body.no-sidebar {
+       padding-left: 0;
    }
 
    .sidebar {
@@ -256,21 +323,6 @@ h6 {
    .content-wrapper {
        margin-left: 0; /* Content already offset by body padding */
    }
-}
-
-.overlay {
-   display: none;
-   position: fixed;
-   top: 0;
-   left: 0;
-   right: 0;
-   bottom: 0;
-   background-color: rgba(0, 0, 0, 0.5);
-   z-index: 999;
-}
-
-.overlay.show {
-   display: block;
 }
 
 .overlay {

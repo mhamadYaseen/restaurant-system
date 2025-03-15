@@ -54,6 +54,7 @@
                                         <th>Time</th>
                                         <th>Items</th>
                                         <th>Total</th>
+                                        <th>Customer</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -86,11 +87,11 @@
                                                 </div>
                                             </td>
                                             <td class="fw-bold">${{ number_format($order->total_price, 2) }}</td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'secondary') }}">
-                                                    {{ ucfirst($order->status) }}
-                                                </span>
+                                            <td>{{ $order->user->name?? " " }} ({{ $order->user->email?? " " }})</td>
+                                            <span
+                                                class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'secondary') }}">
+                                                {{ ucfirst($order->status) }}
+                                            </span>
                                             </td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-info me-1"
@@ -124,9 +125,9 @@
                     <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
                     <h5>No Orders Found</h5>
                     <p class="text-muted">There are no orders in the system yet.</p>
-                    <a href="{{ route('orders.create') }}" class="btn btn-primary mt-3">
+                    {{-- <a href="{{ route('orders.create') }}" class="btn btn-primary mt-3">
                         <i class="fas fa-plus-circle"></i> Create New Order
-                    </a>
+                    </a> --}}
                 </div>
             </div>
         @endforelse

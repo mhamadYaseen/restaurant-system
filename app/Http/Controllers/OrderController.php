@@ -5,33 +5,66 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Item;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
-
-    // Display all orders
-    public function index()
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    // Display all orders - FIX THE ADMIN CHECK
+    public function index(Request $request)
     {
-        $orders = Order::with(['orderItems.item'])->latest()->get();
-        return view('orders.index', compact('orders'));
+        $query = Order::with(['orderItems.item', 'user'])->latest()->get();;
+
+        // Filter by user if specified (admin only)
+        if ($request->filled('user_id') && Auth::user()->role === 'admin') {
+            $query->where('user_id', $request->user_id);
+        }
+
+        // Non-admin users can only see their own orders
+        if (Auth::user()->role !== 'admin') {
+            $query->where('user_id', Auth::id());
+        }
+
+        $orders = $query;
+
+        // Only load users for dropdown if admin
+        $users = Auth::user()->role === 'admin' ? User::where('role', '!=', 'pending')->get() : null;
+
+        return view('orders.index', compact('orders', 'users'));
     }
 
     // Show form to create a new order
     public function create()
     {
-        $items = Item::all();
+        // Only users with roles can create orders from admin panel
+        if (Auth::user()->role !== 'admin' && Auth::user()->role !== 'user') {
+            return redirect()->route('home')->with('error', 'You do not have permission to access this page.');
+        }
+
+        $items = Item::where('available', true)->get();
         return view('orders.create', compact('items'));
     }
 
     // Store new order
     public function store(Request $request)
     {
+        // Basic validation
         $request->validate([
             'items' => 'required|array',
+            'items.*.id' => 'exists:items,id',
+            'items.*.quantity' => 'integer|min:1|max:50', // Prevent unreasonable quantities
         ]);
 
-        // Normalize the items array based on its format
+        // Security: Normalize the items array based on its format
         // Format from menu: items[0][id], items[0][quantity]
         // Format from create: items[item_id][id], items[item_id][quantity]
         $normalizedItems = [];
@@ -44,9 +77,10 @@ class OrderController extends Controller
 
             // Only include items with quantity
             if (isset($item['quantity']) && $item['quantity'] > 0) {
+                // Cast to integers to prevent injection
                 $normalizedItems[] = [
-                    'id' => $item['id'],
-                    'quantity' => $item['quantity']
+                    'id' => (int) $item['id'],
+                    'quantity' => (int) $item['quantity']
                 ];
             }
         }
@@ -61,91 +95,137 @@ class OrderController extends Controller
         $total_price = 0;
         $itemsWithDetails = [];
 
-        // Calculate total price and gather item details
-        foreach ($normalizedItems as $item) {
-            $product = Item::findOrFail($item['id']);
-            $itemTotal = $product->price * $item['quantity'];
-            $total_price += $itemTotal;
+        try {
+            // Calculate total price and gather item details
+            foreach ($normalizedItems as $item) {
+                // Security: Verify item exists and is available
+                $product = Item::where('id', $item['id'])->where('available', true)->firstOrFail();
+                $itemTotal = $product->price * $item['quantity'];
+                $total_price += $itemTotal;
 
-            $itemsWithDetails[] = [
-                'id' => $item['id'],
-                'name' => $product->name,
-                'price' => $product->price,
-                'quantity' => $item['quantity'],
-                'total' => $itemTotal
-            ];
-        }
+                $itemsWithDetails[] = [
+                    'id' => $item['id'],
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'quantity' => $item['quantity'],
+                    'total' => $itemTotal
+                ];
+            }
 
-        // Create order
-        $order = Order::create([
-            'total_price' => $total_price,
-            'status' => 'completed',
-        ]);
+            // Begin transaction to ensure data integrity
+            DB::beginTransaction();
 
-        // Create order items
-        foreach ($normalizedItems as $item) {
-            $product = Item::findOrFail($item['id']);
-
-            OrderItem::create([
-                'order_id' => $order->id,
-                'item_id' => $item['id'],
-                'quantity' => $item['quantity'],
-                'price' => $product->price,
-                'image' => $product->image,
+            // Create order
+            $order = Order::create([
+                'user_id' => Auth::id(),
+                'total_price' => $total_price,
+                'status' => 'completed',
             ]);
-        }
 
-        // For AJAX requests (from the menu page)
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Your order has been placed successfully!',
-                'receipt' => [
+            // Create order items
+            foreach ($normalizedItems as $item) {
+                $product = Item::findOrFail($item['id']);
+
+                OrderItem::create([
                     'order_id' => $order->id,
-                    'date' => $order->created_at->format('M d, Y'),
-                    'time' => $order->created_at->format('g:i A'),
-                    'items' => $itemsWithDetails,
-                    'subtotal' => $total_price,
-                    'tax' => $total_price * 0.1,
-                    'total' => $total_price + ($total_price * 0.1)
-                ]
-            ]);
-        }
+                    'item_id' => $item['id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $product->price,
+                    'image' => $product->image,
+                ]);
+            }
 
-        // For regular requests
-        // Determine where to redirect based on referer
-        if (str_contains(url()->previous(), 'menu')) {
+            DB::commit();
+
+            // For AJAX requests (from the menu page)
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Your order has been placed successfully!',
+                    'receipt' => [
+                        'order_id' => $order->id,
+                        'date' => $order->created_at->format('M d, Y'),
+                        'time' => $order->created_at->format('g:i A'),
+                        'items' => $itemsWithDetails,
+                        'subtotal' => $total_price,
+                        'tax' => $total_price * 0.1,
+                        'total' => $total_price + ($total_price * 0.1)
+                    ]
+                ]);
+            }
+
+            // For regular requests
             return redirect()->route('orders.index')
                 ->with('success', 'Your order has been placed successfully!')
                 ->with('order_id', $order->id);
-        } else {
-            return redirect()->route('orders.index')
-                ->with('success', 'Order created successfully!')
-                ->with('order_id', $order->id);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Order creation failed: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing your order. Please try again.')
+                ->withInput();
         }
     }
 
-    // Display a single order
+    // Show specific order - ADD SECURITY CHECK
     public function show(Order $order)
     {
+        // Authorize access - only admin or the order owner can view
+        if (Auth::user()->role !== 'admin' && Auth::id() !== $order->user_id) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $order->load(['orderItems.item', 'user']);
         return view('orders.show', compact('order'));
     }
 
-    // Show edit form
+    // User's order history
+    public function orders()
+    {
+        $orders = Auth::user()->orders()->with('orderItems.item')->latest()->paginate(10);
+        return view('profile.orders', compact('orders'));
+    }
+
+    // Show edit form - ADD SECURITY CHECK
     public function edit(Order $order)
     {
-        $items = Item::all();
+        // Only admin or the order owner can edit
+        if (Auth::user()->role !== 'admin' && Auth::id() !== $order->user_id) {
+            abort(403, 'Unauthorized access');
+        }
+
+        // Users can only edit pending orders
+        if (Auth::user()->role !== 'admin' && $order->status !== 'pending') {
+            return redirect()->route('orders.index')
+                ->with('error', 'Only pending orders can be modified.');
+        }
+
+        $items = Item::where('available', true)->get();
         return view('orders.edit', compact('order', 'items'));
     }
 
-    // Update order
+    // Update order - ADD SECURITY CHECKS
     public function update(Request $request, Order $order)
     {
+        // Only admin or the order owner can update
+        if (Auth::user()->role !== 'admin' && Auth::id() !== $order->user_id) {
+            abort(403, 'Unauthorized access');
+        }
+
+        // Users can only update pending orders
+        if (Auth::user()->role !== 'admin' && $order->status !== 'pending') {
+            return redirect()->route('orders.index')
+                ->with('error', 'Only pending orders can be modified.');
+        }
+
         $request->validate([
             'items' => 'required|array',
             'items.*.id' => 'exists:items,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'status' => 'required|in:pending,completed,cancelled',
+            'items.*.quantity' => 'required|integer|min:1|max:50',
+            'status' => [
+                Rule::requiredIf(Auth::user()->role === 'admin'),
+                Rule::in(['pending', 'completed', 'cancelled']),
+            ],
         ]);
 
         // Filter out any items that don't have an ID
@@ -155,39 +235,79 @@ class OrderController extends Controller
             });
 
         if ($validItems->isEmpty()) {
-            return redirect()->back()->with('error', 'Please select at least one item for the order.');
+            return redirect()->back()
+                ->with('error', 'Please select at least one item for the order.');
         }
 
-        $total_price = 0;
-        $order->orderItems()->delete(); // Remove old order items
+        try {
+            DB::beginTransaction();
 
-        foreach ($validItems as $item) {
-            $product = Item::findOrFail($item['id']);
-            $total_price += $product->price * $item['quantity'];
+            $total_price = 0;
+            $order->orderItems()->delete(); // Remove old order items
 
-            OrderItem::create([
-                'order_id' => $order->id,
-                'item_id' => $item['id'],
-                'quantity' => $item['quantity'],
-                'price' => $product->price,
-                'image' => $product->image,
+            foreach ($validItems as $item) {
+                // Security: Verify item exists and is available
+                $product = Item::where('id', $item['id'])->where('available', true)->firstOrFail();
+                $total_price += $product->price * $item['quantity'];
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'item_id' => $item['id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $product->price,
+                    'image' => $product->image,
+                ]);
+            }
+
+            // Only update status if admin or if user is changing to 'cancelled'
+            $status = $order->status;
+            if (Auth::user()->role === 'admin') {
+                $status = $request->status;
+            } elseif ($request->has('status') && $request->status === 'cancelled') {
+                $status = 'cancelled';
+            }
+
+            $order->update([
+                'total_price' => $total_price,
+                'status' => $status,
             ]);
+
+            DB::commit();
+
+            return redirect()->route('orders.index')
+                ->with('success', 'Order updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Order update failed: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'An error occurred while updating your order. Please try again.');
         }
-
-        $order->update([
-            'total_price' => $total_price,
-            'status' => $request->status,
-        ]);
-
-        return redirect()->route('orders.index')->with('success', 'Order updated successfully!');
     }
 
-    // Delete order
+    // Delete order - ADD SECURITY CHECKS
     public function destroy(Order $order)
     {
-        $order->orderItems()->delete();
-        $order->delete();
+        // Only admin or the owner of a pending order can delete
+        if (
+            Auth::user()->role !== 'admin' &&
+            (Auth::id() !== $order->user_id || $order->status !== 'pending')
+        ) {
+            abort(403, 'Unauthorized access');
+        }
 
-        return redirect()->route('orders.index')->with('success', 'Order deleted successfully!');
+        try {
+            DB::beginTransaction();
+            $order->orderItems()->delete();
+            $order->delete();
+            DB::commit();
+
+            return redirect()->route('orders.index')
+                ->with('success', 'Order deleted successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Order deletion failed: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'An error occurred while deleting the order.');
+        }
     }
 }
