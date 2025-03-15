@@ -30,7 +30,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Routes that require authentication AND a role
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');

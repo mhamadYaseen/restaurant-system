@@ -46,8 +46,8 @@ class OrderController extends Controller
     public function create()
     {
         // Only users with roles can create orders from admin panel
-        if (Auth::user()->role !== 'admin' && Auth::user()->role !== 'user') {
-            return redirect()->route('home')->with('error', 'You do not have permission to access this page.');
+        if (!Auth::check() || Auth::user()->role === 'pending') {
+            return redirect()->back()->with('error', 'You are not authorized to place orders.');
         }
 
         $items = Item::where('available', true)->get();
@@ -57,6 +57,9 @@ class OrderController extends Controller
     // Store new order
     public function store(Request $request)
     {
+        if (!Auth::check() || Auth::user()->role === 'pending') {
+            return redirect()->back()->with('error', 'You are not authorized to place orders.');
+        }
         // Basic validation
         $request->validate([
             'items' => 'required|array',

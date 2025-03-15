@@ -100,8 +100,9 @@
         body {
             overflow: hidden;
             height: 100%;
+            background: url('/images/restaurant-bg.jpg') center/cover no-repeat fixed;
+            position: relative;
         }
-
         .container {
             max-height: 100vh;
             overflow-y: auto;

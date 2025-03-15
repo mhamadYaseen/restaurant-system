@@ -151,31 +151,42 @@ function updateOrderDisplay() {
 document.addEventListener("DOMContentLoaded", function () {
     // Add form submission handler
     const orderForm = document.getElementById("orderForm");
-    orderForm.addEventListener("submit", function (event) {
-        event.preventDefault(); // Prevent default form submission
+    
+    if (orderForm) {  // Check if orderForm exists before adding listener
+        orderForm.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
 
-        if (orderItems.length === 0) {
-            return;
-        }
+            if (orderItems.length === 0) {
+                return;
+            }
 
-        // Show loading state
-        const placeOrderBtn = document.getElementById("place-order-btn");
-        placeOrderBtn.innerHTML =
-            '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        placeOrderBtn.disabled = true;
+            // Show loading state
+            const placeOrderBtn = document.getElementById("place-order-btn");
+            placeOrderBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            placeOrderBtn.disabled = true;
 
-        // Collect form data
-        const formData = new FormData(orderForm);
+            // Collect form data
+            const formData = new FormData(orderForm);
+            
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        // Send AJAX request
-        fetch(orderForm.action, {
-            method: "POST",
-            body: formData,
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        })
-            .then((response) => response.json())
+            // Send AJAX request with proper CSRF token
+            fetch(orderForm.action, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRF-TOKEN": csrfToken
+                },
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Server error: ' + response.status);
+                }
+                return response.json();
+            })
             .then((data) => {
                 if (data.success) {
                     // Show receipt modal with order details
@@ -186,9 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     updateOrderDisplay();
                 } else {
                     // Handle errors
-                    alert(
-                        "There was a problem with your order. Please try again."
-                    );
+                    alert(data.message || "There was a problem with your order. Please try again.");
                 }
 
                 // Reset button
@@ -197,15 +206,14 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch((error) => {
                 console.error("Error:", error);
-                alert(
-                    "An error occurred while processing your order. Please try again."
-                );
+                alert("An error occurred while processing your order. Please try again.");
 
                 // Reset button
                 placeOrderBtn.innerHTML = "Place Order";
                 placeOrderBtn.disabled = false;
             });
-    });
+        });
+    }
 });
 
 // Function to display the receipt

@@ -55,7 +55,6 @@
                                         <th>Items</th>
                                         <th>Total</th>
                                         <th>Customer</th>
-                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -88,10 +87,6 @@
                                             </td>
                                             <td class="fw-bold">${{ number_format($order->total_price, 2) }}</td>
                                             <td>{{ $order->user->name?? " " }} ({{ $order->user->email?? " " }})</td>
-                                            <span
-                                                class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'secondary') }}">
-                                                {{ ucfirst($order->status) }}
-                                            </span>
                                             </td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-info me-1"
