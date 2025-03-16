@@ -68,9 +68,12 @@
                </div>
            </div>
            <div class="modal-footer">
-               <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary">
-                   <i class="fas fa-list me-2"></i> View All Orders
-               </a>
+            @if (Auth::check() && Auth::user()->role == 'admin')
+                
+            <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-2"></i> View All Orders
+            </a>
+            @endif   
                <button type="button" class="btn btn-primary" onclick="window.print()">
                    <i class="fas fa-print me-2"></i> Print Receipt
                </button>

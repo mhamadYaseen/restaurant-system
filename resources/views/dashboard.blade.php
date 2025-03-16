@@ -222,7 +222,6 @@
                                         <th>Order ID</th>
                                         <th>Items</th>
                                         <th>Total</th>
-                                        <th>Status</th>
                                         <th>Date</th>
                                         <th>Actions</th>
                                     </tr>
@@ -233,12 +232,7 @@
                                             <td>#{{ $order->id }}</td>
                                             <td>{{ $order->orderItems->sum('quantity') }} items</td>
                                             <td>${{ number_format($order->total_price, 2) }}</td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'secondary') }}">
-                                                    {{ ucfirst($order->status) }}
-                                                </span>
-                                            </td>
+                                            
                                             <td>{{ $order->created_at->format('M d, g:i A') }}</td>
                                             <td>
                                                 <a href="#" class="btn btn-sm btn-outline-primary">

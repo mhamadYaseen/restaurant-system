@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4 mt-5">
+    <div class="container-fluid py-4">
         <!-- Add mobile navigation tabs -->
         <div class="d-lg-none mobile-nav-tabs">
             <ul class="nav nav-pills nav-fill">

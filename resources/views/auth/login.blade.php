@@ -42,11 +42,11 @@
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between">
                                     <label for="password" class="form-label">{{ __('Password') }}</label>
-                                    @if (Route::has('password.request'))
+                                    {{-- @if (Route::has('password.request'))
                                         <a class="text-decoration-none small" href="{{ route('password.request') }}">
                                             {{ __('Forgot password?') }}
                                         </a>
-                                    @endif
+                                    @endif --}}
                                 </div>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0">
