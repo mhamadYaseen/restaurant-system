@@ -134,9 +134,6 @@
             <div class="d-flex justify-content-between">
                <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">Cancel</button>
                <div>
-                  <a href="{{ route('items.show', $item) }}" class="btn btn-outline-primary me-2">
-                     <i class="fas fa-eye me-2"></i> View Item
-                  </a>
                   <button type="submit" class="btn btn-primary px-4">
                      <i class="fas fa-save me-2"></i> Update Item
                   </button>

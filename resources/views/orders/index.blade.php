@@ -86,7 +86,7 @@
                                                 </div>
                                             </td>
                                             <td class="fw-bold">${{ number_format($order->total_price, 2) }}</td>
-                                            <td>{{ $order->user->name?? " " }} ({{ $order->user->email?? " " }})</td>
+                                            <td>{{ $order->user->name ?? ' ' }} ({{ $order->user->email ?? ' ' }})</td>
                                             </td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-info me-1"
@@ -146,15 +146,6 @@
                             <div class="col-md-6">
                                 <h6 class="fw-bold">Order Information</h6>
                                 <table class="table table-sm">
-                                    <tr>
-                                        <th>Status:</th>
-                                        <td>
-                                            <span
-                                                class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'secondary') }}">
-                                                {{ ucfirst($order->status) }}
-                                            </span>
-                                        </td>
-                                    </tr>
                                     <tr>
                                         <th>Created:</th>
                                         <td>{{ $order->created_at->format('M d, Y g:i A') }}</td>

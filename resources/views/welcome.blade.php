@@ -258,7 +258,10 @@
                     <div class="col-lg-8 mx-auto">
                         <h2>Ready to Experience Culinary Excellence?</h2>
                         <p class="mb-4">Join us for an unforgettable dining experience or explore our menu online.</p>
+                        @guest
                         <a href="{{ route('login') }}" class="btn btn-light btn-lg me-2">Sign In</a>
+                        <a href="{{ route('register') }}" class="btn btn-outline-light btn-lg">Register</a>
+                        @endguest
                         <a href="{{ route('menu') }}" class="btn btn-outline-light btn-lg">Browse Menu</a>
                     </div>
                 </div>

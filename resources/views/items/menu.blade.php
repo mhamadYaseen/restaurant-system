@@ -114,7 +114,7 @@
 
             <!-- Order Panel (25% width) -->
             <div class="col-lg-3">
-                <div class="card order-panel sticky-top">
+                <div class="card order-panel sticky-top ">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
                             <i class="fas fa-shopping-cart me-2"></i> Your Order

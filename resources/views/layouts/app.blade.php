@@ -1,6 +1,6 @@
 <!-- filepath: g:\projects\restaurant-system\resources\views\layouts\app.blade.php -->
 <!DOCTYPE html>
-<body class="{{ Auth::check() && Auth::user()->role == 'admin' ? 'with-sidebar h-100' : 'no-sidebar h-100' }} d-flex flex-column">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,22 +9,22 @@
         <title>{{ config('app.name', 'Restaurant System') }}</title>
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap"
-            rel="stylesheet">
-
-        <!-- Icons -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-        <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-        {{-- css Links --}}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/menu.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+
+        <!-- Conditionally load other stylesheets -->
+        @if (request()->is('menu') || request()->is('menu/*'))
+            <link rel="stylesheet" href="{{ asset('css/menu.css') }}">
+        @endif
+        @if (request()->is('dashboard'))
+            <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+        @endif
+
+        <!-- Font Awesome with a smaller subset (only used icons) -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            media="print" onload="this.media='all'">
+        {{-- css Links --}}
+        <link rel="preload" href="{{ asset('css/app.css') }}" as="style">
 
         @stack('styles')
     </head>
@@ -222,11 +222,15 @@
                 </div>
             </div>
         </footer>
-
         <!-- Bootstrap JS Bundle with Popper -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 
-        <!-- Sidebar Toggle Script -->
+        <!-- Include menu.js script only where needed using a conditional -->
+        @if (request()->is('menu') || request()->is('menu/*'))
+            <script src="{{ asset('js/menu.js') }}" defer></script>
+        @endif
+
+        <!-- Sidebar Toggle Script - optimized -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const sidebarToggle = document.getElementById('sidebarToggle');
@@ -240,57 +244,46 @@
                         return window.innerWidth < 992;
                     }
 
-                    // Initialize sidebar state based on screen size
+                    // Initialize sidebar state based on screen size - removed console logs
                     function initSidebarState() {
                         if (isMobile()) {
                             sidebar.classList.remove('show');
-                            console.log('Mobile detected - sidebar hidden');
                         } else {
                             sidebar.classList.add('show');
-                            console.log('Desktop detected - sidebar visible');
                         }
                     }
 
                     // Call once when page loads
                     initSidebarState();
 
-                    // Toggle sidebar on button click
+                    // Toggle sidebar on button click - removed console log
                     if (sidebarToggle) {
                         sidebarToggle.addEventListener('click', function() {
-                            console.log('Toggle clicked');
                             sidebar.classList.toggle('show');
                             overlay.classList.toggle('show');
                         });
                     }
 
-                    // Hide sidebar when clicking overlay
+                    // Hide sidebar when clicking overlay - removed console log
                     if (overlay) {
                         overlay.addEventListener('click', function() {
-                            console.log('Overlay clicked');
                             sidebar.classList.remove('show');
                             overlay.classList.remove('show');
                         });
                     }
 
-                    // Update sidebar state when window is resized
+                    // Update sidebar state when window is resized - removed console log
                     window.addEventListener('resize', function() {
-                        console.log('Window resized');
                         initSidebarState();
-                        if (!isMobile()) {
-                            // When switching to desktop view, hide overlay
-                            if (overlay) {
-                                overlay.classList.remove('show');
-                            }
+                        if (!isMobile() && overlay) {
+                            overlay.classList.remove('show');
                         }
                     });
                 }
             });
         </script>
 
-        <!-- Include menu.js script -->
-        <script src="{{ asset('js/menu.js') }}"></script>
         @stack('scripts')
-
     </body>
 
-</html>
+    </html>
