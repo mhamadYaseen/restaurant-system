@@ -1,7 +1,6 @@
 <!-- filepath: g:\projects\restaurant-system\resources\views\layouts\app.blade.php -->
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
+<body class="{{ Auth::check() && Auth::user()->role == 'admin' ? 'with-sidebar h-100' : 'no-sidebar h-100' }} d-flex flex-column">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -202,7 +201,7 @@
         @endif
 
         <!-- Main content wrapper -->
-        <div class="content-wrapper">
+        <div class="content-wrapper flex-grow-1">
             <main class="py-4">
                 @yield('content')
             </main>

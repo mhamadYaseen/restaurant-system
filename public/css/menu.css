@@ -1,137 +1,415 @@
-.menu-section {
-   transition: all 0.3s ease;
-}
-
-.category-pills {
-   overflow-x: auto;
-   white-space: nowrap;
-   padding-bottom: 5px;
-}
-
-.category-title {
-   position: relative;
-   display: inline-block;
-   margin-left: 15px;
-   color: var(--bs-primary);
-   font-family: 'Playfair Display', serif;
-}
-
-.category-title:before {
-   content: "";
-   position: absolute;
-   left: -15px;
-   top: 0;
-   bottom: 0;
-   width: 5px;
-   background-color: var(--bs-primary);
-   border-radius: 3px;
-}
-
-.menu-item-card {
-   border-radius: 0.75rem;
-   overflow: hidden;
-   transition: transform 0.2s ease, box-shadow 0.2s ease;
-   border: none;
-   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-}
-
-.menu-item-card:hover {
-   transform: translateY(-5px);
-   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
-}
-
-.menu-item-image {
-   height: 180px;
-   position: relative;
-   overflow: hidden;
-   background-color: #f8f8f8;
-}
-
-.menu-item-image img {
-   object-fit: cover;
-   height: 100%;
-   width: 100%;
-}
-
-.no-image-placeholder {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   height: 100%;
-   background-color: #f0f0f0;
-   color: #aaa;
-   font-size: 2rem;
-}
-
-.unavailable-badge {
-   position: absolute;
-   top: 0;
-   left: 0;
-   right: 0;
-   bottom: 0;
-   background-color: rgba(0, 0, 0, 0.6);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-}
-
-.unavailable-badge span {
-   background-color: var(--bs-danger);
-   color: white;
-   padding: 5px 15px;
-   border-radius: 20px;
-   transform: rotate(-15deg);
-   font-weight: bold;
-}
-
-.menu-item-price {
-   font-weight: 600;
-   color: var(--bs-accent);
-   font-size: 1.1rem;
-}
-
-.quantity-control {
-   max-width: 100px;
-}
-
-.order-panel {
-   max-height: 90vh;
-   top: 1rem;
-}
-
-.order-panel .card-body {
-   max-height: calc(90vh - 120px);
-   overflow-y: auto;
-}
-
-.order-item {
-   border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
-   padding-bottom: 10px;
-   margin-bottom: 10px;
-}
-
-.order-item:last-child {
-   border-bottom: none;
-}
-
-@media print {
-   body * {
-       visibility: hidden;
+/* ======================================
+   1. MENU BASE STYLES
+   ====================================== */
+   .menu-section {
+      transition: all 0.3s ease;
    }
    
-   #orderReceiptModal .modal-content,
-   #orderReceiptModal .modal-content * {
-       visibility: visible;
+   .category-pills {
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 5px;
+      position: relative;
    }
    
-   #orderReceiptModal .modal-content {
-       position: absolute;
-       left: 0;
-       top: 0;
-       width: 100%;
+   .category-pills:after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 30px;
+      background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
+      pointer-events: none;
    }
    
-   #orderReceiptModal .modal-footer {
-       display: none;
+   .category-title {
+      position: relative;
+      display: inline-block;
+      margin-left: 15px;
+      color: var(--bs-primary);
+      font-family: 'Playfair Display', serif;
    }
-}
+   
+   .category-title:before {
+      content: "";
+      position: absolute;
+      left: -15px;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background-color: var(--bs-primary);
+      border-radius: 3px;
+   }
+   
+   /* Menu Item Cards */
+   .menu-item-card {
+      border-radius: 0.75rem;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: none;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+   }
+   
+   .menu-item-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+   }
+   
+   .menu-item-image {
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+      background-color: #f8f8f8;
+   }
+   
+   .menu-item-image img {
+      object-fit: cover;
+      height: 100%;
+      width: 100%;
+   }
+   
+   .no-image-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background-color: #f0f0f0;
+      color: #aaa;
+      font-size: 2rem;
+   }
+   
+   .unavailable-badge {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+   }
+   
+   .unavailable-badge span {
+      background-color: var(--bs-danger);
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      transform: rotate(-15deg);
+      font-weight: bold;
+   }
+   
+   .menu-item-price {
+      font-weight: 600;
+      color: var(--bs-accent);
+      font-size: 1.1rem;
+   }
+   
+   .quantity-control {
+      max-width: 100px;
+   }
+   
+   /* ======================================
+      2. ORDER PANEL STYLES
+      ====================================== */
+   .order-panel {
+      max-height: 90vh;
+      top: 1rem;
+   }
+   
+   .order-panel .card-body {
+      max-height: calc(90vh - 120px);
+      overflow-y: auto;
+   }
+   
+   .order-item {
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+   }
+   
+   .order-item:last-child {
+      border-bottom: none;
+   }
+   
+   /* Badge for order count */
+   .order-count {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      transition: all 0.2s ease;
+   }
+   
+   /* ======================================
+      3. RECEIPT PRINT STYLES
+      ====================================== */
+   @media print {
+      #orderReceiptModal .modal-content,
+      #orderReceiptModal .modal-content * {
+         visibility: visible;
+      }
+   
+      body * {
+         visibility: hidden;
+      }
+      
+      #orderReceiptModal .modal-content {
+         position: absolute;
+         left: 0;
+         top: 0;
+         width: 100%;
+      }
+      
+      #orderReceiptModal .modal-footer {
+         display: none;
+      }
+   }
+   
+   /* ======================================
+      4. RESPONSIVE STYLES
+      ====================================== */
+   
+   /* Large screens (standard desktop) */
+   @media (min-width: 992px) {
+      .mobile-order-button,
+      .mobile-nav-tabs,
+      .tab-content.d-lg-none {
+         display: none !important;
+      }
+   }
+   
+   /* Medium & Small screens (tablets & mobile) */
+   @media (max-width: 991.98px) {
+      /* Mobile Navigation Structure */
+      .container-fluid {
+         padding-bottom: 80px;
+         padding-left: 10px;
+         padding-right: 10px;
+      }
+      
+      .mobile-nav-tabs {
+         position: sticky;
+         top: 76px;
+         z-index: 900;
+         background-color: white;
+         padding: 10px 0;
+         margin: -10px -10px 15px -10px;
+         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      }
+      
+      .mobile-nav-tabs .nav-link {
+         border-radius: 50px;
+         padding: 8px 16px;
+         font-weight: 500;
+         transition: all 0.2s ease;
+      }
+      
+      .mobile-nav-tabs .nav-link.active {
+         box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
+         transform: translateY(-1px);
+      }
+      
+      /* Menu Layout Fixes */
+      .tab-content {
+         overflow: hidden;
+      }
+      
+      .row.original-layout:after {
+         content: "";
+         display: table;
+         clear: both;
+      }
+      
+      /* Grid Layout Fixes */
+      .row.g-4 {
+         display: flex;
+         flex-wrap: wrap;
+         margin-right: -8px;
+         margin-left: -8px;
+      }
+      
+      .row.g-4 > [class*="col-"] {
+         padding-right: 8px;
+         padding-left: 8px;
+      }
+      
+      /* Item Cards */
+      .menu-item-card {
+         margin-bottom: 15px;
+      }
+      
+      .menu-item-image {
+         height: 150px;
+      }
+      
+      .card-body {
+         padding: 15px;
+      }
+      
+      /* UI Elements */
+      .category-title {
+         font-size: 1.5rem;
+         margin-bottom: 15px;
+      }
+      
+      .d-flex.justify-content-between.align-items-center {
+         flex-wrap: wrap;
+      }
+      
+      .fw-bold {
+         width: 100%;
+      }
+      
+      /* Order Panel Fixes */
+      .order-panel {
+         position: static !important;
+         max-height: none;
+         margin-bottom: 2rem;
+         border-radius: 12px;
+      }
+      
+      .order-panel .card-body {
+         max-height: none;
+         overflow-y: visible;
+         padding-bottom: 15px;
+      }
+      
+      .order-panel .card-header {
+         padding: 15px;
+         border-radius: 12px 12px 0 0 !important;
+      }
+      
+      .order-panel .card-footer {
+         border-radius: 0 0 12px 12px;
+         padding: 12px 15px;
+      }
+      
+      #order-content .order-panel {
+         margin-bottom: 80px;
+      }
+      
+      /* Mobile-specific Controls */
+      .col-md-6.col-lg-4 {
+         flex: 0 0 50%;
+         max-width: 50%;
+      }
+      
+      .quantity-control {
+         width: 95px !important;
+         height: 34px !important;
+         flex-shrink: 0;
+      }
+      
+      .quantity-btn {
+         width: 32px !important;
+         height: 34px !important;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         padding: 0;
+      }
+      
+      .item-quantity {
+         height: 34px !important;
+         font-size: 14px !important;
+         padding: 2px 4px;
+      }
+      
+      .menu-item-card .card-title {
+         font-size: 0.95rem;
+      }
+      
+      .menu-item-card .add-to-order {
+         height: 34px;
+         min-width: 70px;
+         padding: 4px 10px;
+         font-size: 0.8rem;
+      }
+      
+      .menu-item-card .d-flex.justify-content-between.align-items-center {
+         gap: 8px;
+      }
+      
+      .order-item {
+         padding: 10px 0;
+      }
+      
+      .order-item .input-group {
+         max-width: 100px;
+      }
+      
+      /* Floating Action Button */
+      .mobile-order-button {
+         display: none;
+         position: fixed;
+         bottom: 20px;
+         right: 20px;
+         z-index: 1000;
+         border-radius: 50px;
+         padding: 12px 20px;
+         box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+         font-weight: 500;
+      }
+      
+      .mobile-order-button:active {
+         transform: scale(0.97);
+      }
+   }
+   
+   /* Tablet-specific */
+   @media (min-width: 768px) and (max-width: 991.98px) {
+      .menu-item-card .d-flex.justify-content-between.align-items-center {
+         flex-wrap: wrap;
+      }
+      
+      .menu-item-card .add-to-order {
+         margin-top: 8px;
+         min-width: 100%;
+      }
+   }
+   
+   /* Phone-specific */
+   @media (max-width: 575.98px) {
+      .col-md-6.col-lg-4 {
+         flex: 0 0 100%;
+         max-width: 100%;
+      }
+      
+      .menu-item-image {
+         height: 130px;
+      }
+      
+      .menu-item-price {
+         font-size: 0.95rem;
+      }
+      
+      .card-text {
+         font-size: 0.85rem;
+         margin-bottom: 8px;
+      }
+   }
+   
+   /* Small phones */
+   @media (max-width: 374.98px) {
+      .menu-item-card .add-to-order {
+         min-width: 60px;
+         padding: 4px 8px;
+         font-size: 0.75rem;
+      }
+      
+      .menu-item-card .add-to-order .fas {
+         margin-right: 2px;
+      }
+      
+      .quantity-control {
+         width: 82px !important;
+      }
+      
+      .quantity-btn {
+         width: 28px !important;
+      }
+      
+      .menu-item-image {
+         height: 120px;
+      }
+   }

@@ -2,8 +2,36 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container-fluid py-4">
-        <div class="row">
+    <div class="container-fluid py-4 mt-5">
+        <!-- Add mobile navigation tabs -->
+        <div class="d-lg-none mobile-nav-tabs">
+            <ul class="nav nav-pills nav-fill">
+                <li class="nav-item">
+                    <a class="nav-link active" id="menu-tab" data-bs-toggle="pill" href="#menu-content" role="tab">
+                        <i class="fas fa-utensils me-2"></i> Menu
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="order-tab" data-bs-toggle="pill" href="#order-content" role="tab">
+                        <i class="fas fa-shopping-cart me-2"></i> Your Order
+                        <span class="badge bg-primary ms-1 order-count d-none">0</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Mobile content wrapper -->
+        <div class="tab-content d-lg-none">
+            <div class="tab-pane fade show active" id="menu-content" role="tabpanel">
+                <!-- Menu content will be dynamically cloned here by JS -->
+            </div>
+            <div class="tab-pane fade" id="order-content" role="tabpanel">
+                <!-- Order panel will be dynamically cloned here by JS -->
+            </div>
+        </div>
+
+        <!-- Original desktop layout -->
+        <div class="row original-layout">
             <!-- Menu Section (75% width) -->
             <div class="col-lg-9 menu-section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -56,7 +84,7 @@
                                                             onclick="decreaseQuantity('{{ $item->id }}')">
                                                             <i class="fas fa-minus"></i>
                                                         </button>
-                                                        <input type="number" class="form-control text-center item-quantity"
+                                                        <input type="text" class="form-control text-center item-quantity"
                                                             id="quantity-{{ $item->id }}" value="1" min="1"
                                                             readonly>
                                                         <button type="button"
@@ -92,7 +120,7 @@
                             <i class="fas fa-shopping-cart me-2"></i> Your Order
                         </h5>
                     </div>
-                    @if(Auth::check() && Auth::user()->role != 'pending')
+                    @if (Auth::check() && Auth::user()->role != 'pending')
                         <form id="orderForm" action="{{ route('orders.store') }}" method="POST">
                             @csrf
                             <div class="card-body">
@@ -140,22 +168,25 @@
                         </div>
                     @endguest
 
-                    @if(Auth::check() && Auth::user()->role == 'pending')
+                    @if (Auth::check() && Auth::user()->role == 'pending')
                         <div class="card-body">
                             <div class="text-center py-4">
                                 <i class="fas fa-user-clock fa-3x text-warning mb-3"></i>
                                 <p>Your account is pending approval</p>
-                                <p class="text-muted small">You'll be able to place orders once your account is approved</p>
-                                
+                                <p class="text-muted small">You'll be able to place orders once your account is approved
+                                </p>
+
                                 <a href="{{ route('menu') }}" class="btn btn-outline-primary mt-3">
                                     <i class="fas fa-utensils me-2"></i> Browse Menu
                                 </a>
-                                
+
                             </div>
 
                         </div>
                     @endif
                 </div>
             </div>
-            @include('orders.receipt')
-        @endsection
+        </div>
+    </div>
+    @include('orders.receipt')
+@endsection

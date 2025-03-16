@@ -331,3 +331,206 @@ function placeOrder() {
         placeOrderBtn.disabled = false;
     }, 1500);
 }
+// Mobile layout management - add at the end of your file
+document.addEventListener("DOMContentLoaded", function () {
+    // Set up mobile layout
+    setupMobileLayout();
+    
+    // Update when window resizes
+    window.addEventListener("resize", setupMobileLayout);
+    
+    // Update order count badge
+    updateOrderCount();
+});
+
+// Function to update the order count badge
+function updateOrderCount() {
+    const orderCountBadges = document.querySelectorAll('.order-count');
+    const count = orderItems.length;
+    
+    orderCountBadges.forEach(badge => {
+        badge.textContent = count;
+        if (count === 0) {
+            badge.classList.add('d-none');
+        } else {
+            badge.classList.remove('d-none');
+        }
+    });
+}
+
+// Override the updateOrderDisplay function to call updateOrderCount
+const originalUpdateOrderDisplay = updateOrderDisplay;
+updateOrderDisplay = function() {
+    originalUpdateOrderDisplay();
+    updateOrderCount();
+    addMobileOrderButton();
+};
+
+// Function to set up mobile-specific layout
+function setupMobileLayout() {
+    const isMobile = window.innerWidth < 992;
+    const menuSection = document.querySelector('.menu-section');
+    const orderPanel = document.querySelector('.order-panel')?.closest('.col-lg-3');
+    
+    if (!menuSection || !orderPanel) return;
+    
+    const mobileMenuContent = document.getElementById('menu-content');
+    const mobileOrderContent = document.getElementById('order-content');
+    const originalLayout = document.querySelector('.original-layout');
+    
+    if (isMobile && mobileMenuContent && mobileOrderContent) {
+        // On mobile: move content to tab panes
+        if (!document.querySelector('.mobile-content-moved')) {
+            // Clone the menu section
+            const menuClone = menuSection.cloneNode(true);
+            menuClone.classList.add('col-12');
+            menuClone.classList.remove('col-lg-9');
+            mobileMenuContent.appendChild(menuClone);
+            
+            // Clone the order section
+            const orderClone = orderPanel.cloneNode(true);
+            orderClone.classList.add('col-12');
+            orderClone.classList.remove('col-lg-3');
+            mobileOrderContent.appendChild(orderClone);
+            
+            // Mark as moved
+            mobileMenuContent.classList.add('mobile-content-moved');
+            
+            // Add listeners to the cloned elements
+            addEventListenersToClonedElements();
+            
+            // Hide original layout on mobile
+            originalLayout.style.display = 'none';
+        }
+    } else {
+        // On desktop: use original layout
+        if (originalLayout) {
+            originalLayout.style.display = '';
+        }
+        
+        // Clear mobile tabs if they were populated
+        if (mobileMenuContent && mobileMenuContent.classList.contains('mobile-content-moved')) {
+            mobileMenuContent.innerHTML = '';
+            mobileOrderContent.innerHTML = '';
+            mobileMenuContent.classList.remove('mobile-content-moved');
+        }
+    }
+}
+
+// Add event listeners to cloned elements
+function addEventListenersToClonedElements() {
+    // Add event listeners for all the buttons and inputs in the cloned content
+    const clonedAddButtons = document.querySelectorAll('#menu-content .add-to-order');
+    clonedAddButtons.forEach(button => {
+        const onClick = button.getAttribute('onclick');
+        if (onClick) {
+            button.onclick = null; // Remove existing handler
+            button.onclick = function() { eval(onClick); }; // Add new handler
+        }
+    });
+    
+    const clonedQuantityButtons = document.querySelectorAll('#menu-content .quantity-btn');
+    clonedQuantityButtons.forEach(button => {
+        const onClick = button.getAttribute('onclick');
+        if (onClick) {
+            button.onclick = null;
+            button.onclick = function() { eval(onClick); };
+        }
+    });
+    
+    const clonedOrderForm = document.querySelector('#order-content #orderForm');
+    if (clonedOrderForm) {
+        clonedOrderForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Get the original form
+            const originalForm = document.querySelector('.original-layout #orderForm');
+            if (originalForm) {
+                // Submit the original form to maintain all AJAX handlers
+                const submitEvent = new Event('submit', {
+                    bubbles: true,
+                    cancelable: true
+                });
+                originalForm.dispatchEvent(submitEvent);
+            }
+        });
+    }
+    
+    // Add category filter functionality
+    const clonedCategoryButtons = document.querySelectorAll('#menu-content .category-pills .btn');
+    clonedCategoryButtons.forEach(button => {
+        const onClick = button.getAttribute('onclick');
+        if (onClick) {
+            button.onclick = null;
+            button.onclick = function() { 
+                eval(onClick);
+                // Also filter categories in the original content
+                const categoryId = this.getAttribute('data-category') || 
+                                  onClick.match(/'([^']+)'/)?.[1] || 'all';
+                filterCategoryInContent('#menu-content', categoryId);
+            };
+        }
+    });
+}
+
+// Add a floating "View Order" button for mobile
+function addMobileOrderButton() {
+    const isMobile = window.innerWidth < 992;
+    let floatingButton = document.querySelector('.mobile-order-button');
+    
+    if (isMobile) {
+        if (!floatingButton) {
+            // Create the button
+            floatingButton = document.createElement('button');
+            floatingButton.className = 'btn btn-primary mobile-order-button';
+            floatingButton.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> View Order <span class="badge bg-light text-primary ms-2 order-count">0</span>';
+            
+            // Add click event
+            floatingButton.addEventListener('click', function() {
+                const orderTab = document.getElementById('order-tab');
+                if (orderTab) {
+                    orderTab.click();
+                }
+                
+                // Scroll to the top where the tabs are
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Add to the body
+            document.body.appendChild(floatingButton);
+        }
+        
+        // Show the button when there are items in the order
+        if (orderItems.length > 0) {
+            floatingButton.style.display = 'block';
+            updateOrderCount();
+        } else {
+            floatingButton.style.display = 'none';
+        }
+    } else {
+        // Remove the button on desktop
+        if (floatingButton) {
+            floatingButton.remove();
+        }
+    }
+}
+
+// Filter categories in a specific content area
+function filterCategoryInContent(contentSelector, categoryId) {
+    const categories = document.querySelectorAll(`${contentSelector} .category-section`);
+    
+    if (categoryId === "all") {
+        categories.forEach(cat => cat.style.display = "block");
+    } else {
+        categories.forEach(cat => {
+            if (cat.id === `category-${categoryId}`) {
+                cat.style.display = "block";
+            } else {
+                cat.style.display = "none";
+            }
+        });
+    }
+}
